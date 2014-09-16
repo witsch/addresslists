@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -13,6 +14,13 @@ def get_table(name):
     return Table(name, metadata, autoload=True)
 
 
+def parse_arguments():
+    parser = ArgumentParser(description='generate address lists')
+    parser.add_argument('-f', '--filter', default='Hansa 07',
+        help='filter on given relationship')
+    return parser.parse_args()
+
+
 def fullname(record):
     return ' '.join(filter(None, (record.ZFIRSTNAME, record.ZLASTNAME)))
 
@@ -22,6 +30,7 @@ def rel(name):
 
 
 def main():
+    args = parse_arguments()
     records = get_table('ZABCDRECORD')
     related = get_table('ZABCDRELATEDNAME')
     phones = get_table('ZABCDPHONENUMBER')
@@ -30,7 +39,7 @@ def main():
     people = {}
     for record in q(records):
         people[record.Z_PK] = people[fullname(record)] = record
-    matches = q(related).filter_by(ZNAME='Hansa 07')
+    matches = q(related).filter_by(ZNAME=args.filter)
     for match in matches:
         child = people[match.ZOWNER]
         parents = q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child'))
