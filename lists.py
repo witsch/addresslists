@@ -80,7 +80,7 @@ def dump(children):
 
 def main():
     args = parse_arguments()
-    matches = children(args.filter)
+    matches = children(args.filter.decode('utf8'))
     if args.excel:
         with open(args.excel, 'wb') as output:
             excel(output=output, children=matches)
