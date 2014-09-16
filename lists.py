@@ -41,19 +41,18 @@ def children(relation):
     matches = q(related).filter_by(ZNAME=relation)
     for match in matches:
         child = people[match.ZOWNER]
-        parents = q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child'))
-        if parents.count():
-            parent_info = []
-            for parent in parents:
-                parent = people[parent.ZNAME]
-                info = [fullname(parent)]
-                info += (n for n, in q(phones)
-                    .filter_by(ZOWNER=parent.Z_PK, ZLABEL=rel('mobile'))
-                    .with_entities(phones.c.ZFULLNUMBER))
-                info += (a for a, in q(mails)
-                    .filter_by(ZOWNER=parent.Z_PK)
-                    .with_entities(mails.c.ZADDRESS))
-                parent_info.append(info)
+        parent_info = []
+        for parent in q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child')):
+            parent = people[parent.ZNAME]
+            info = [fullname(parent)]
+            info += (n for n, in q(phones)
+                .filter_by(ZOWNER=parent.Z_PK, ZLABEL=rel('mobile'))
+                .with_entities(phones.c.ZFULLNUMBER))
+            info += (a for a, in q(mails)
+                .filter_by(ZOWNER=parent.Z_PK)
+                .with_entities(mails.c.ZADDRESS))
+            parent_info.append(info)
+        if parent_info:
             yield fullname(child), parent_info
 
 
