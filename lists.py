@@ -51,7 +51,7 @@ def children(relation):
                 .filter_by(ZOWNER=parent.Z_PK, ZLABEL=rel('mobile'))
                 .with_entities(phones.c.ZFULLNUMBER))
             info += (a for a, in q(mails)
-                .filter_by(ZOWNER=parent.Z_PK)
+                .filter_by(ZOWNER=parent.Z_PK, ZLABEL=rel('home'))
                 .with_entities(mails.c.ZADDRESS))
             parent_info.append(info)
         if parent_info:
