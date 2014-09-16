@@ -18,6 +18,7 @@ setup(name=name,
     install_requires=[
         'setuptools',
         'sqlalchemy',
+        'xlwt',
     ],
     entry_points={
         'console_scripts': [
