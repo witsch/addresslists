@@ -29,8 +29,7 @@ def rel(name):
     return '_$!<%s>!$_' % name.capitalize()
 
 
-def main():
-    args = parse_arguments()
+def children(relation):
     records = get_table('ZABCDRECORD')
     related = get_table('ZABCDRELATEDNAME')
     phones = get_table('ZABCDPHONENUMBER')
@@ -39,12 +38,12 @@ def main():
     people = {}
     for record in q(records):
         people[record.Z_PK] = people[fullname(record)] = record
-    matches = q(related).filter_by(ZNAME=args.filter)
+    matches = q(related).filter_by(ZNAME=relation)
     for match in matches:
         child = people[match.ZOWNER]
         parents = q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child'))
         if parents.count():
-            print(child.ZFIRSTNAME)
+            parent_info = []
             for parent in parents:
                 parent = people[parent.ZNAME]
                 info = [fullname(parent)]
@@ -54,4 +53,13 @@ def main():
                 info += (a for a, in q(mails)
                     .filter_by(ZOWNER=parent.Z_PK)
                     .with_entities(mails.c.ZADDRESS))
-                print('\t' + ', '.join(info))
+                parent_info.append(info)
+            yield fullname(child), parent_info
+
+
+def main():
+    args = parse_arguments()
+    for child, parents in children(args.filter):
+        print(child)
+        for info in parents:
+            print('\t' + ', '.join(info))
