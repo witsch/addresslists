@@ -44,16 +44,24 @@ def fullname(record):
     return ' '.join(filter(None, (record.ZFIRSTNAME, record.ZLASTNAME)))
 
 
-def addresses(record):
-    q = session.query(get_table('ZABCDPOSTALADDRESS'))
-    for addr in q.filter_by(ZOWNER=record.Z_PK, ZLABEL=rel('home')):
+def records(owner, table, label):
+    q = session.query(get_table(table))
+    return q.filter_by(ZOWNER=owner.Z_PK, ZLABEL=rel(label))
+
+
+def addresses(owner):
+    for addr in records(owner, 'ZABCDPOSTALADDRESS', 'home'):
         yield '%(ZSTREET)s, %(ZZIPCODE)s %(ZCITY)s' % vars(addr)
 
 
-def phonenumbers(record, label='home'):
-    q = session.query(get_table('ZABCDPHONENUMBER'))
-    for nr in q.filter_by(ZOWNER=record.Z_PK, ZLABEL=rel(label)):
+def phonenumbers(owner, label='home'):
+    for nr in records(owner, 'ZABCDPHONENUMBER', label):
         yield nr.ZFULLNUMBER
+
+
+def mailaddresses(owner):
+    for item in records(owner, 'ZABCDEMAILADDRESS', 'home'):
+        yield item.ZADDRESS
 
 
 def first(items):
@@ -67,7 +75,6 @@ def rel(name):
 def children(relation):
     records = get_table('ZABCDRECORD')
     related = get_table('ZABCDRELATEDNAME')
-    mails = get_table('ZABCDEMAILADDRESS')
     q = session.query
     people = {}
     for record in q(records):
@@ -83,14 +90,11 @@ def children(relation):
         parent_info = []
         for parent in q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child')):
             parent = people[parent.ZNAME]
-            info = [
+            parent_info.append([
                 fullname(parent),
                 first(phonenumbers(parent, 'mobile')),
-            ]
-            info += (a for a, in q(mails)
-                .filter_by(ZOWNER=parent.Z_PK, ZLABEL=rel('home'))
-                .with_entities(mails.c.ZADDRESS))
-            parent_info.append(info)
+                first(mailaddresses(parent)),
+            ])
         if parent_info:
             yield child_info, parent_info
 
