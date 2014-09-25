@@ -1,11 +1,28 @@
 from argparse import ArgumentParser
+from os import environ, listdir, path, stat
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker, scoped_session
 from xlwt import Workbook
 
 
+def sources():
+    home = environ['HOME']
+    sources = '%s/Library/Application Support/AddressBook/Sources' % home
+    filename = 'AddressBook-v22.abcddb'
+    for name in listdir(sources):
+        fullname = path.join(sources, name, filename)
+        if path.exists(fullname):
+            yield fullname
+
+
+def addressbook():
+    books = sorted((stat(name).st_mtime, name) for name in sources())
+    mtime, name = books[-1]
+    return name
+
+
 # database connection
-engine = create_engine('sqlite:///addressbook.db', native_datetime=True)
+engine = create_engine('sqlite:///%s' % addressbook(), native_datetime=True)
 session = scoped_session(sessionmaker(bind=engine))
 metadata = MetaData()
 
