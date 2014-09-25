@@ -60,6 +60,7 @@ def children(relation):
     matches = q(related).filter_by(ZNAME=relation)
     for match in matches:
         child = people[match.ZOWNER]
+        child_info = [fullname(child)]
         parent_info = []
         for parent in q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child')):
             parent = people[parent.ZNAME]
@@ -72,7 +73,7 @@ def children(relation):
                 .with_entities(mails.c.ZADDRESS))
             parent_info.append(info)
         if parent_info:
-            yield fullname(child), parent_info
+            yield child_info, parent_info
 
 
 def excel(output, children):
@@ -80,17 +81,18 @@ def excel(output, children):
     sheet = book.add_sheet('Addresslist')
     row = 0
     for child, parents in children:
-        sheet.write(row, 0, child)
+        for i, elem in enumerate(child):
+            sheet.write(row, i, elem)
         for i, info in enumerate(parents):
             for e, elem in enumerate(info):
-                sheet.write(row + i, 1 + e, elem)
+                sheet.write(row + i, len(child) + e, elem)
         row += len(parents)
     book.save(output)
 
 
 def dump(children):
     for child, parents in children:
-        print(child)
+        print(', '.join(child))
         for info in parents:
             print('\t' + ', '.join(info))
 
