@@ -103,7 +103,7 @@ def excel(output, children):
     book = Workbook()
     sheet = book.add_sheet('Addresslist')
     row = 0
-    for child, parents in children:
+    for child, parents in sorted(children):
         for i, elem in enumerate(child):
             sheet.write(row, i, elem)
         for i, info in enumerate(parents):
@@ -114,7 +114,7 @@ def excel(output, children):
 
 
 def dump(children):
-    for child, parents in children:
+    for child, parents in sorted(children):
         print(', '.join(child))
         for info in parents:
             print('\t' + ', '.join(info))
