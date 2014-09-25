@@ -44,6 +44,12 @@ def fullname(record):
     return ' '.join(filter(None, (record.ZFIRSTNAME, record.ZLASTNAME)))
 
 
+def addresses(record):
+    q = session.query(get_table('ZABCDPOSTALADDRESS'))
+    for addr in q.filter_by(ZOWNER=record.Z_PK, ZLABEL=rel('home')):
+        yield '%(ZSTREET)s, %(ZZIPCODE)s %(ZCITY)s' % vars(addr)
+
+
 def rel(name):
     return '_$!<%s>!$_' % name.capitalize()
 
@@ -60,7 +66,10 @@ def children(relation):
     matches = q(related).filter_by(ZNAME=relation)
     for match in matches:
         child = people[match.ZOWNER]
-        child_info = [fullname(child)]
+        child_info = [
+            fullname(child),
+            ''.join(list(addresses(child))[:1]),
+        ]
         parent_info = []
         for parent in q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child')):
             parent = people[parent.ZNAME]
