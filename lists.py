@@ -102,14 +102,11 @@ def children(relation):
 def excel(output, children):
     book = Workbook()
     sheet = book.add_sheet('Addresslist')
-    row = 0
-    for child, parents in sorted(children):
+    for row, (child, parents) in enumerate(sorted(children)):
         for i, elem in enumerate(child):
             sheet.write(row, i, elem)
-        for i, info in enumerate(parents):
-            for e, elem in enumerate(info):
-                sheet.write(row + i, len(child) + e, elem)
-        row += len(parents)
+        for i, info in enumerate(zip(*parents)):
+            sheet.write(row, len(child) + i, '\n'.join(info))
     book.save(output)
 
 
