@@ -87,15 +87,17 @@ def children(relation):
             first(addresses(child)),
             first(phonenumbers(child)),
         ]
-        parent_info = []
-        for parent in q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child')):
-            parent = people[parent.ZNAME]
-            parent_info.append([
-                fullname(parent),
-                first(phonenumbers(parent, 'mobile')),
-                first(mailaddresses(parent)),
-            ])
-        if parent_info:
+        parents = q(related).filter_by(ZOWNER=child.Z_PK, ZLABEL=rel('child'))
+        if parents.count():
+            parent_info = []
+            for parent in parents:
+                parent = people.get(parent.ZNAME)
+                if parent is not None:
+                    parent_info.append([
+                        fullname(parent),
+                        first(phonenumbers(parent, 'mobile')),
+                        first(mailaddresses(parent)),
+                    ])
             yield child_info, parent_info
 
 
