@@ -51,12 +51,12 @@ def records(owner, table, label):
 
 def addresses(owner):
     for addr in records(owner, 'ZABCDPOSTALADDRESS', 'home'):
-        yield '%(ZSTREET)s, %(ZZIPCODE)s %(ZCITY)s' % vars(addr)
+        yield '%(ZSTREET)s\n%(ZZIPCODE)s %(ZCITY)s' % vars(addr)
 
 
 def phonenumbers(owner, label='home'):
     for nr in records(owner, 'ZABCDPHONENUMBER', label):
-        yield nr.ZFULLNUMBER
+        yield nr.ZFULLNUMBER.replace('+49 ', '0')
 
 
 def mailaddresses(owner):
