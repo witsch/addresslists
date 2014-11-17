@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from argparse import ArgumentParser
 from os import environ, listdir, path, stat
 from sqlalchemy import create_engine, MetaData, Table
@@ -56,7 +58,7 @@ def addresses(owner):
 
 def phonenumbers(owner, label='home'):
     for nr in records(owner, 'ZABCDPHONENUMBER', label):
-        yield nr.ZFULLNUMBER.replace('+49 ', '0')
+        yield nr.ZFULLNUMBER.replace('+49 ', '0').replace(u'+49 ', '0')
 
 
 def mailaddresses(owner):
