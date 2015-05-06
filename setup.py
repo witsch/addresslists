@@ -17,7 +17,7 @@ setup(name=name,
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'sqlalchemy',
+        'sqlalchemy == 0.9.9',
         'xlwt',
     ],
     entry_points={
