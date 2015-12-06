@@ -42,8 +42,12 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def fullname(record):
-    return ' '.join(filter(None, (record.ZFIRSTNAME, record.ZLASTNAME)))
+def fullname(record, specials=[]):
+    name = ' '.join(filter(None, (record.ZFIRSTNAME, record.ZLASTNAME)))
+    for special in specials:
+        if name.startswith(special):
+            name = special
+    return name
 
 
 def records(owner, table, label):
@@ -96,7 +100,7 @@ def children(relation):
                 parent = people.get(parent.ZNAME)
                 if parent is not None:
                     parent_info.append([
-                        fullname(parent),
+                        fullname(parent, specials=['Mutter', 'Vater']),
                         first(phonenumbers(parent, 'mobile')),
                         first(mailaddresses(parent)),
                     ])
