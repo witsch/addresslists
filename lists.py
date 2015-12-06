@@ -99,11 +99,14 @@ def children(relation):
             for parent in parents.order_by(related.c.ZNAME):
                 parent = people.get(parent.ZNAME)
                 if parent is not None:
+                    label = q(related).filter_by(ZOWNER=parent.Z_PK, ZNAME=fullname(child)).first()
                     parent_info.append([
+                        label.ZLABEL if label is not None else '',
                         fullname(parent, specials=['Mutter', 'Vater']),
                         first(phonenumbers(parent, 'mobile')),
                         first(mailaddresses(parent)),
                     ])
+            parent_info = [info[1:] for info in sorted(parent_info, reverse=True)]
             yield child_info, parent_info
 
 
