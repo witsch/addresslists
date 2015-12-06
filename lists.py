@@ -120,9 +120,9 @@ def excel(output, children):
 
 def dump(children):
     for child, parents in sorted(children):
-        print(', '.join(child))
+        print(', '.join(child).encode('utf8'))
         for info in parents:
-            print('\t' + ', '.join(info))
+            print('\t' + ', '.join(info).encode('utf8'))
 
 
 def main():
