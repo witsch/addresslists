@@ -57,12 +57,14 @@ def records(owner, table, label):
 
 def addresses(owner):
     for addr in records(owner, 'ZABCDPOSTALADDRESS', 'home'):
-        yield '%(ZSTREET)s\n%(ZZIPCODE)s %(ZCITY)s' % vars(addr)
+        value = '%(ZSTREET)s\n%(ZZIPCODE)s %(ZCITY)s' % vars(addr)
+        value = value.replace(u'Straße', 'Str.').replace(u'straße', 'str.')
+        yield value
 
 
 def phonenumbers(owner, label='home'):
     for nr in records(owner, 'ZABCDPHONENUMBER', label):
-        yield nr.ZFULLNUMBER.replace('+49 ', '0').replace(u'+49 ', '0')
+        yield nr.ZFULLNUMBER.replace('+49 ', '0').replace(u'+49 ', '0').replace('030 ', '')
 
 
 def mailaddresses(owner):
