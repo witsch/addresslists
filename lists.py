@@ -64,7 +64,10 @@ def addresses(owner):
 
 def phonenumbers(owner, label='home'):
     for nr in records(owner, 'ZABCDPHONENUMBER', label):
-        yield nr.ZFULLNUMBER.replace('+49 ', '0').replace(u'+49 ', '0').replace('030 ', '')
+        number = nr.ZFULLNUMBER.replace('+49 ', '0').replace(u'+49 ', '0')
+        before, sep, after = number.partition(' ')
+        number = before.replace('030', '') + sep + after.replace(' ', '')
+        yield number.strip()
 
 
 def mailaddresses(owner):
